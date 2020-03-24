@@ -1,0 +1,11 @@
+{
+    "dataSet": "main",
+    "hierarchy": [{
+        "yearly": {
+            "hierarchy": ["year", "spatialExtent", "unit"]
+        },
+        "monthly": {
+            "hierarchy": ["year", "month", "spatialExtent", "unit"]
+        }
+    }]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "fileindexer",
+  "version": "1.0.0",
+  "description": "generate an index of file structure",
+  "main": "indexer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
