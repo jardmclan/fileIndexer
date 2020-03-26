@@ -1,11 +1,11 @@
 const BaseController = require("./baseController");
+const {basename, dirname} = require("path");
 
 module.export = class HierarchyMetaDescriptor {
 
     
     constructor(controller) {
-        const Controller = require(controller);
-        this.controller = new Controller();
+        this.controller = controller;
         //validate controller
         if(!(controller.prototype instanceof BaseController)) {
             throw new Error("Invalid controller, must implement BaseController");
@@ -14,8 +14,15 @@ module.export = class HierarchyMetaDescriptor {
         this.config = this.controller.getHierarchyConfig();
     }
 
-    //path should be an array of file names
-    getMetaDescriptorFromHierarchy(path, file) {
+    getMetaDescriptorFromHierarchy(path) {
+        let fname = basename(path);
+        let dir = dirname(path);
+        let decomposedPath = dir.split("/");
+        this._getMetaDescriptorFromHierarchy(decomposedPath, fname);
+    }
+
+    //path should be an array of directory names
+    _getMetaDescriptorFromHierarchy(path, fname) {
 
         let taggedValues = this.getTaggedValues(path);
         //add static values if exist in config
@@ -23,7 +30,7 @@ module.export = class HierarchyMetaDescriptor {
             Object.assign(taggedValues, this.config.static);
         }
         let hierarchyVals = {
-            file: file,
+            fname: fname,
             descriptor: taggedValues
         };
 

@@ -32,7 +32,7 @@ module.export = class GeotiffController extends BaseController {
         descriptor.dataSet = hierarchyVals.descriptor.dataSet;
 
         return {
-            file: hierarchyVals.file,
+            fname: hierarchyVals.fname,
             descriptor: descriptor
         }
     }

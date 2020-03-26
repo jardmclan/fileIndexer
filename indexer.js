@@ -1,39 +1,72 @@
-const fs = require("fs").promises;
+const fs = require("fs");
 const HierarchyMetaDescriptor = require("./hierarchyMetaDescriptors");
 const {join} = require("path");
 
-let root = "./input/RF_Monthly_3_Yr_Sample";
+//hardcode for now, can take as args for automation
+let rootMain = "./input/RF_Monthly_3_Yr_Sample";
+let outFile = "./output/index.json";
+const controller = require("geotiffController.js");
+//-------------------------------------------------
 
-readToLeafRecursive(root);
+const descriptorGen = new HierarchyMetaDescriptor(controller);
 
-function readToLeafRecursive(root, descriptor) {
+let writter = fs.createWriteStream(outFile);
+//creating json doc, so add in beginning portion
+writter.write(`{"index":`);
 
-    return fs.readdir(root).then((content) => {
-        subProcessors = [];
-        //create descriptor for this
+readToLeafRecursive(rootMain, []);
 
+writter.write(`}`, () => {
+    writter.end();
+});
+
+function readToLeafRecursive(root) {
+    return fs.promises.readdir(root).then((content) => {
         for(let item of content) {
             let subPath = join(root, item);
-            let subDescriptor = new HierarchyMetaDescriptor(subPath, descriptor);
-            fs.lstat(subPath).then((stats) => {
+            fs.promises.lstat(subPath).then((stats) => {
                 if(stats.isDirectory()) {
-                    
-                    subProcessors.push(readToLeafRecursive(subPath, subDescriptor));
+                    readToLeafRecursive(subRoot, subPath);
                 }
-                //subpath is a file, close out descriptor with the path and add descriptor to return values
+                //subpath is a file, get descriptor and write out to index file
                 else {
-                    subDescriptor
+                    let meta = descriptorGen.getMetaDescriptorFromHierarchy(subPath);
+                    //order preserving, so should be fine
+                    writter.write(JSON.stringify(meta));
                 }
             }, (e) => {
                 throw new Error(`Error reading file stat.\n${e}`);
             });
         }
-
-        return Promise.all()
-
-        //readToLeafRecursive(dir, )
     }, (e) => {
         throw new Error(`Error reading directory.\n${e}`);
     });
 
+}
+
+
+class DeferredPromise extends Promise {
+    
+    constructor(executor) {
+        super((resolve, reject) => {
+            this._resolve = resolve;
+            this._reject = reject;
+            return executor(resolve, reject)
+        });
+    }
+
+    resolve(result) {
+        this._resolve(result);
+    }
+
+    reject(error) {
+        this.reject(error);
+    }
+}
+
+
+class MetadataStream extends Readable {
+    _read(size) {
+        
+    }
 }
